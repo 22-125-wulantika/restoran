@@ -30,45 +30,62 @@ try:
         data['Jenis Suasana'] = label_encoder.fit_transform(data['Jenis Suasana'])
         data['Lokasi Restoran'] = data['Lokasi Restoran'].str.replace(' km', '').astype(float)
 
-        # Memastikan hanya kolom yang diperlukan untuk perhitungan
-        features = data[['Preferensi Makanan', 'Lokasi Restoran',
-                         'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
+        # Input fitur yang dipilih pengguna
+        st.subheader("Pilih Fitur yang Digunakan untuk Rekomendasi:")
+        fitur_terpilih = st.multiselect(
+            "Pilih Fitur:",
+            options=['Preferensi Makanan', 'Lokasi Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)',
+                     'Rating Toko', 'Jenis Suasana'],
+            default=['Preferensi Makanan', 'Lokasi Restoran', 'Rating Toko']
+        )
 
-        # Menghitung cosine similarity berdasarkan fitur-fitur
-        similarity_matrix = cosine_similarity(features)
-
-        # Input dari pengguna
-        st.subheader("Pilih Kriteria Restoran:")
-        preferensi_makanan = st.selectbox("Preferensi Makanan:", data['Preferensi Makanan'].unique())
-        jenis_suasana = st.selectbox("Jenis Suasana:", data['Jenis Suasana'].unique())
-        lokasi = st.slider("Lokasi Restoran (km):", min_value=float(data['Lokasi Restoran'].min()),
-                           max_value=float(data['Lokasi Restoran'].max()), value=float(data['Lokasi Restoran'].mean()))
-        harga = st.slider("Harga Rata-Rata Makanan (Rp):", min_value=int(data['Harga Rata-Rata Makanan di Toko (Rp)'].min()),
-                          max_value=int(data['Harga Rata-Rata Makanan di Toko (Rp)'].max()),
-                          value=int(data['Harga Rata-Rata Makanan di Toko (Rp)'].mean()), step=1000)
-        rating = st.slider("Rating Minimum:", min_value=0.0, max_value=5.0, value=4.5, step=0.1)
-
-        # Membuat input kriteria sebagai vektor
-        input_vector = [[preferensi_makanan, lokasi, harga, rating, jenis_suasana]]
-
-        # Menghitung similarity antara input pengguna dengan data
-        similarity_scores = cosine_similarity(input_vector, features)[0]
-
-        # Menambahkan skor similarity ke dalam dataset
-        data['Similarity'] = similarity_scores
-
-        # Filter berdasarkan rating dan harga, kemudian urutkan berdasarkan similarity
-        filtered_data = data[(data['Rating Toko'] >= rating) &
-                             (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= harga)]
-        recommended_restaurants = filtered_data.sort_values(by='Similarity', ascending=False).head(5)
-
-        # Menampilkan hasil rekomendasi
-        st.subheader("Restoran yang Direkomendasikan:")
-        if recommended_restaurants.empty:
-            st.write("Tidak ada restoran yang sesuai dengan kriteria Anda.")
+        # Memastikan hanya kolom yang dipilih digunakan
+        if len(fitur_terpilih) == 0:
+            st.error("Harap pilih minimal satu fitur untuk melakukan rekomendasi.")
         else:
-            st.write(recommended_restaurants[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)',
-                                              'Rating Toko', 'Similarity']])
+            # Data subset berdasarkan fitur yang dipilih
+            features = data[fitur_terpilih]
+
+            # Menghitung cosine similarity berdasarkan fitur yang dipilih
+            similarity_matrix = cosine_similarity(features)
+
+            # Input dari pengguna untuk setiap fitur yang dipilih
+            st.subheader("Masukkan Kriteria Restoran:")
+            input_values = {}
+            for fitur in fitur_terpilih:
+                if fitur == 'Lokasi Restoran':
+                    input_values[fitur] = st.slider(f"Lokasi Restoran (km):", min_value=float(features[fitur].min()),
+                                                    max_value=float(features[fitur].max()),
+                                                    value=float(features[fitur].mean()))
+                elif fitur == 'Harga Rata-Rata Makanan di Toko (Rp)':
+                    input_values[fitur] = st.slider(f"Harga Rata-Rata Makanan (Rp):", min_value=int(features[fitur].min()),
+                                                    max_value=int(features[fitur].max()),
+                                                    value=int(features[fitur].mean()), step=1000)
+                elif fitur == 'Rating Toko':
+                    input_values[fitur] = st.slider(f"Rating Minimum:", min_value=0.0, max_value=5.0,
+                                                    value=4.5, step=0.1)
+                else:
+                    input_values[fitur] = st.selectbox(f"{fitur}:", sorted(features[fitur].unique()))
+
+            # Membuat input vektor
+            input_vector = [[input_values[fitur] for fitur in fitur_terpilih]]
+
+            # Menghitung similarity antara input pengguna dengan data
+            similarity_scores = cosine_similarity(input_vector, features)[0]
+
+            # Menambahkan skor similarity ke dalam dataset
+            data['Similarity'] = similarity_scores
+
+            # Filter dan urutkan berdasarkan similarity
+            recommended_restaurants = data.sort_values(by='Similarity', ascending=False).head(5)
+
+            # Menampilkan hasil rekomendasi
+            st.subheader("Restoran yang Direkomendasikan Berdasarkan Fitur:")
+            if recommended_restaurants.empty:
+                st.write("Tidak ada restoran yang sesuai dengan kriteria Anda.")
+            else:
+                st.write(recommended_restaurants[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)',
+                                                  'Rating Toko', 'Similarity']])
 
 except FileNotFoundError:
     st.error("File 'ds.xlsx' tidak ditemukan. Pastikan file ada di direktori yang sama dengan aplikasi.")
