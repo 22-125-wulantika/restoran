@@ -62,6 +62,7 @@ try:
                     input_values[fitur] = st.number_input(f"Rating Minimum:", min_value=0.0, max_value=5.0,
                                                          value=4.5, step=0.1)
                 elif fitur == 'Preferensi Makanan':
+                    # Menampilkan preferensi makanan berdasarkan label yang di-encode
                     input_values[fitur] = st.selectbox(f"Preferensi Makanan:", options=label_encoder.classes_,
                                                        index=0)
                 elif fitur == 'Jenis Suasana':
