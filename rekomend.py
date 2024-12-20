@@ -54,18 +54,20 @@ try:
             input_values = {}
             for fitur in fitur_terpilih:
                 if fitur == 'Lokasi Restoran':
-                    input_values[fitur] = st.slider(f"Lokasi Restoran (km):", min_value=float(features[fitur].min()),
-                                                    max_value=float(features[fitur].max()),
-                                                    value=float(features[fitur].mean()))
+                    input_values[fitur] = st.number_input(f"Lokasi Restoran (km):", min_value=float(features[fitur].min()),
+                                                         max_value=float(features[fitur].max()),
+                                                         value=float(features[fitur].mean()), step=0.1)
                 elif fitur == 'Harga Rata-Rata Makanan di Toko (Rp)':
-                    input_values[fitur] = st.slider(f"Harga Rata-Rata Makanan (Rp):", min_value=int(features[fitur].min()),
-                                                    max_value=int(features[fitur].max()),
-                                                    value=int(features[fitur].mean()), step=1000)
+                    input_values[fitur] = st.number_input(f"Harga Rata-Rata Makanan (Rp):", min_value=int(features[fitur].min()),
+                                                         max_value=int(features[fitur].max()),
+                                                         value=int(features[fitur].mean()), step=500)
                 elif fitur == 'Rating Toko':
-                    input_values[fitur] = st.slider(f"Rating Minimum:", min_value=0.0, max_value=5.0,
-                                                    value=4.5, step=0.1)
+                    input_values[fitur] = st.number_input(f"Rating Minimum:", min_value=0.0, max_value=5.0,
+                                                         value=4.5, step=0.1)
                 else:
-                    input_values[fitur] = st.selectbox(f"{fitur}:", sorted(features[fitur].unique()))
+                    input_values[fitur] = st.number_input(f"{fitur} (numerik):", min_value=int(features[fitur].min()),
+                                                         max_value=int(features[fitur].max()),
+                                                         value=int(features[fitur].mean()))
 
             # Membuat input vektor
             input_vector = [[input_values[fitur] for fitur in fitur_terpilih]]
