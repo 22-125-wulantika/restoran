@@ -51,12 +51,6 @@ try:
         filtered_data = data[(data['Rating Toko'] >= rating_filter) &
                              (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
 
-        # Debugging tambahan untuk memeriksa hasil filter
-        st.write("Filter Aktif:")
-        st.write(f"Rating Minimum: {rating_filter}, Harga Maksimal: {price_filter}")
-        st.write("Data Setelah Filter:")
-        st.write(filtered_data)
-
         # Menampilkan hasil filter
         st.subheader("Restoran yang Direkomendasikan:")
         if filtered_data.empty:
