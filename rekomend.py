@@ -64,8 +64,8 @@ try:
                 elif fitur == 'Preferensi Makanan':
                     input_values[fitur] = st.selectbox(f"Preferensi Makanan:", options=label_encoder.classes_,
                                                        index=0)
-                else:
-                    input_values[fitur] = st.selectbox(f"{fitur} (numerik):", options=features[fitur].unique(),
+                elif fitur == 'Jenis Suasana':
+                    input_values[fitur] = st.selectbox(f"Jenis Suasana:", options=label_encoder.classes_,
                                                        index=0)
 
             # Membuat input vektor
