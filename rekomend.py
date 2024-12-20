@@ -33,11 +33,7 @@ try:
         # 2. Menghapus satuan 'km' pada Lokasi Restoran
         data['Lokasi Restoran'] = data['Lokasi Restoran'].str.replace(' km', '').astype(float)
 
-        # 3. Memastikan hanya kolom yang diperlukan
-        data = data[['Nama Restoran', 'Preferensi Makanan', 'Lokasi Restoran',
-                     'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
-
-        # Menghitung cosine similarity berdasarkan fitur-fitur
+        # 3. Menghitung cosine similarity berdasarkan fitur-fitur
         features = data[['Preferensi Makanan', 'Lokasi Restoran',
                          'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
         similarity_matrix = cosine_similarity(features)
@@ -60,11 +56,11 @@ try:
 
             # Pilih restoran untuk melihat restoran terdekat
             restoran_terpilih = st.selectbox("Pilih Restoran untuk Melihat Rekomendasi Terdekat",
-                                             filtered_data['Nama Restoran'])
+                                             filtered_data['Nama Restoran'].unique())
 
             if restoran_terpilih:
-                # Mendapatkan indeks restoran yang dipilih
-                index_restoran = filtered_data[filtered_data['Nama Restoran'] == restoran_terpilih].index[0]
+                # Mendapatkan indeks restoran yang dipilih di dataset asli
+                index_restoran = data[data['Nama Restoran'] == restoran_terpilih].index[0]
 
                 # Menghitung cosine similarity untuk restoran terpilih
                 similar_restaurants = list(enumerate(similarity_matrix[index_restoran]))
