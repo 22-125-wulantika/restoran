@@ -81,11 +81,12 @@ try:
             # Filter dan urutkan berdasarkan similarity
             recommended_restaurants = data.sort_values(by='Similarity', ascending=False).head(5)
 
-            # Menampilkan hasil rekomendasi
-            st.subheader("Restoran yang Direkomendasikan Berdasarkan Fitur:")
+            # Menampilkan hasil rekomendasi berdasarkan fitur
+            st.subheader("Restoran yang Direkomendasikan Berdasarkan Fitur yang Dipilih:")
             if recommended_restaurants.empty:
                 st.write("Tidak ada restoran yang sesuai dengan kriteria Anda.")
             else:
+                st.write(f"Menampilkan rekomendasi berdasarkan fitur: {', '.join(fitur_terpilih)}")
                 st.write(recommended_restaurants[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)',
                                                   'Rating Toko', 'Similarity']])
 
