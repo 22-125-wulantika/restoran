@@ -8,7 +8,6 @@ st.title("Sistem Rekomendasi Restoran")
 
 # Membaca file dataset
 try:
-    # Membaca file Excel ds.xlsx
     @st.cache_data
     def load_data():
         return pd.read_excel('ds.xlsx')
@@ -33,11 +32,6 @@ try:
         # 2. Menghapus satuan 'km' pada Lokasi Restoran
         data['Lokasi Restoran'] = data['Lokasi Restoran'].str.replace(' km', '').astype(float)
 
-        # 3. Menghitung cosine similarity berdasarkan fitur-fitur
-        features = data[['Preferensi Makanan', 'Lokasi Restoran',
-                         'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
-        similarity_matrix = cosine_similarity(features)
-
         # Filter berdasarkan rating dan harga
         st.subheader("Filter Restoran")
         rating_filter = st.slider('Pilih Rating Minimum', min_value=0.0, max_value=5.0, value=4.5, step=0.1)
@@ -54,16 +48,21 @@ try:
         else:
             st.write(filtered_data[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']])
 
+            # Hitung cosine similarity ulang untuk data hasil filter
+            features_filtered = filtered_data[['Preferensi Makanan', 'Lokasi Restoran',
+                                               'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
+            similarity_matrix_filtered = cosine_similarity(features_filtered)
+
             # Pilih restoran untuk melihat restoran terdekat
             restoran_terpilih = st.selectbox("Pilih Restoran untuk Melihat Rekomendasi Terdekat",
-                                             filtered_data['Nama Restoran'].unique())
+                                             filtered_data['Nama Restoran'].values)
 
             if restoran_terpilih:
-                # Mendapatkan indeks restoran yang dipilih di dataset asli
-                index_restoran = data[data['Nama Restoran'] == restoran_terpilih].index[0]
+                # Mendapatkan indeks restoran terpilih pada data hasil filter
+                index_restoran_filtered = filtered_data[filtered_data['Nama Restoran'] == restoran_terpilih].index[0]
 
-                # Menghitung cosine similarity untuk restoran terpilih
-                similar_restaurants = list(enumerate(similarity_matrix[index_restoran]))
+                # Mendapatkan rekomendasi restoran terdekat
+                similar_restaurants = list(enumerate(similarity_matrix_filtered[index_restoran_filtered]))
 
                 # Mengurutkan berdasarkan similarity dan memilih 5 teratas
                 similar_restaurants = sorted(similar_restaurants, key=lambda x: x[1], reverse=True)[1:6]
@@ -71,9 +70,9 @@ try:
                 # Menampilkan restoran yang mirip
                 st.subheader("Restoran Mirip dengan yang Anda Pilih:")
                 for i in similar_restaurants:
-                    restaurant_index = i[0]
-                    restaurant_name = data.iloc[restaurant_index]['Nama Restoran']
-                    st.write(f"- {restaurant_name}")
+                    restaurant_index_filtered = i[0]
+                    restaurant_name_filtered = filtered_data.iloc[restaurant_index_filtered]['Nama Restoran']
+                    st.write(f"- {restaurant_name_filtered}")
 except FileNotFoundError:
     st.error("File 'ds.xlsx' tidak ditemukan. Pastikan file ada di direktori yang sama dengan aplikasi.")
 except Exception as e:
