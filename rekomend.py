@@ -46,9 +46,6 @@ try:
             # Data subset berdasarkan fitur yang dipilih
             features = data[fitur_terpilih]
 
-            # Menghitung cosine similarity berdasarkan fitur yang dipilih
-            similarity_matrix = cosine_similarity(features)
-
             # Input dari pengguna untuk setiap fitur yang dipilih
             st.subheader("Masukkan Kriteria Restoran:")
             input_values = {}
@@ -64,10 +61,12 @@ try:
                 elif fitur == 'Rating Toko':
                     input_values[fitur] = st.number_input(f"Rating Minimum:", min_value=0.0, max_value=5.0,
                                                          value=4.5, step=0.1)
+                elif fitur == 'Preferensi Makanan':
+                    input_values[fitur] = st.selectbox(f"Preferensi Makanan:", options=label_encoder.classes_,
+                                                       index=0)
                 else:
-                    input_values[fitur] = st.number_input(f"{fitur} (numerik):", min_value=int(features[fitur].min()),
-                                                         max_value=int(features[fitur].max()),
-                                                         value=int(features[fitur].mean()))
+                    input_values[fitur] = st.selectbox(f"{fitur} (numerik):", options=features[fitur].unique(),
+                                                       index=0)
 
             # Membuat input vektor
             input_vector = [[input_values[fitur] for fitur in fitur_terpilih]]
