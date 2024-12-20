@@ -81,14 +81,28 @@ try:
             # Filter dan urutkan berdasarkan similarity
             recommended_restaurants = data.sort_values(by='Similarity', ascending=False).head(5)
 
-            # Menampilkan hasil rekomendasi berdasarkan fitur
-            st.subheader("Restoran yang Direkomendasikan Berdasarkan Fitur yang Dipilih:")
-            if recommended_restaurants.empty:
-                st.write("Tidak ada restoran yang sesuai dengan kriteria Anda.")
-            else:
-                st.write(f"Menampilkan rekomendasi berdasarkan fitur: {', '.join(fitur_terpilih)}")
-                st.write(recommended_restaurants[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)',
-                                                  'Rating Toko', 'Similarity']])
+            # Menampilkan hasil rekomendasi berdasarkan fitur yang dipilih
+st.subheader("Restoran yang Direkomendasikan Berdasarkan Fitur yang Dipilih:")
+if recommended_restaurants.empty:
+    st.write("Tidak ada restoran yang sesuai dengan kriteria Anda.")
+else:
+    st.write(f"Menampilkan rekomendasi berdasarkan fitur: {', '.join(fitur_terpilih)}")
+    
+    # Menampilkan kolom yang relevan berdasarkan fitur yang dipilih
+    columns_to_display = ['Nama Restoran', 'Similarity']  # Kolom dasar yang selalu tampil
+    if 'Preferensi Makanan' in fitur_terpilih:
+        columns_to_display.append('Preferensi Makanan')
+    if 'Rating Toko' in fitur_terpilih:
+        columns_to_display.append('Rating Toko')
+    if 'Harga Rata-Rata Makanan di Toko (Rp)' in fitur_terpilih:
+        columns_to_display.append('Harga Rata-Rata Makanan di Toko (Rp)')
+    if 'Jenis Suasana' in fitur_terpilih:
+        columns_to_display.append('Jenis Suasana')
+    if 'Lokasi Restoran' in fitur_terpilih:
+        columns_to_display.append('Lokasi Restoran')
+
+    # Menampilkan data rekomendasi dengan kolom yang relevan
+    st.write(recommended_restaurants[columns_to_display])
 
 except FileNotFoundError:
     st.error("File 'ds.xlsx' tidak ditemukan. Pastikan file ada di direktori yang sama dengan aplikasi.")
