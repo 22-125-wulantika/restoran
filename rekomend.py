@@ -89,7 +89,7 @@ try:
                 st.write(f"Menampilkan rekomendasi berdasarkan fitur: {', '.join(fitur_terpilih)}")
                 
                 # Menampilkan kolom yang relevan berdasarkan fitur yang dipilih
-                columns_to_display = ['Nama Restoran', 'Similarity']  # Kolom dasar yang selalu tampil
+                columns_to_display = ['Nama Restoran']  # Hanya tampilkan nama restoran, tanpa similarity
                 if 'Preferensi Makanan' in fitur_terpilih:
                     columns_to_display.append('Preferensi Makanan')
                 if 'Rating Toko' in fitur_terpilih:
