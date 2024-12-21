@@ -4,6 +4,16 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics.pairwise import cosine_similarity
 
+# Daftar harga yang diset
+harga_list = [10000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 
+              21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000, 
+              31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, 40000, 
+              41000, 42000, 43000, 44000, 45000, 47000, 48000, 49000, 50000, 51000, 
+              52000, 55000, 56000, 57000, 58000, 59000, 60000, 62000, 64000, 66000, 
+              67000, 68000, 69000, 70000, 73000, 75000, 76000, 77000, 80000, 82000, 
+              85000, 87000, 88000, 92000, 100000, 103000, 107000, 108000, 111000, 
+              119000, 120000, 132000, 330000]
+
 # Load dataset
 data = pd.read_excel('ds.xlsx')  # Ganti dengan path file dataset
 
@@ -29,9 +39,9 @@ st.title("Rekomendasi Restoran")
 st.subheader("Dataset dengan Encoding")
 st.write(data)
 
-# Pilih rating dan harga
+# Pilih rating dan harga dari daftar harga yang sudah ditentukan
 rating_filter = st.slider('Pilih Rating Restoran', min_value=3.4, max_value=4.9, value=4.9, step=0.1)
-price_filter = st.slider('Pilih Harga Maksimal (Rp)', min_value=0, max_value=330000, value=50000, step=1000)
+price_filter = st.selectbox('Pilih Harga Maksimal (Rp)', harga_list)
 
 # Menampilkan restoran yang sesuai dengan rating dan harga
 filtered_data = data[(data['Rating Toko'] == rating_filter) & (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
