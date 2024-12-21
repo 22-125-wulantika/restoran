@@ -33,8 +33,17 @@ st.write(data)
 rating_filter = st.slider('Pilih Rating Restoran', min_value=3.4, max_value=5.0, value=5.0, step=0.1)
 price_filter = st.number_input('Masukkan Harga Maksimal (Rp)', min_value=0, value=50000, step=1000)
 
-# Menampilkan restoran yang sesuai dengan rating dan harga
-filtered_data = data[(data['Rating Toko'] == rating_filter) & (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
+# Pilihan Preferensi Makanan dan Jenis Suasana
+preferensi_makanan_filter = st.selectbox('Pilih Preferensi Makanan', data['Preferensi Makanan'].unique())
+jenis_suasana_filter = st.selectbox('Pilih Jenis Suasana', data['Jenis Suasana'].unique())
+
+# Menampilkan restoran yang sesuai dengan rating, harga, preferensi makanan, dan jenis suasana
+filtered_data = data[
+    (data['Rating Toko'] == rating_filter) &
+    (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter) &
+    (data['Preferensi Makanan'] == preferensi_makanan_filter) &
+    (data['Jenis Suasana'] == jenis_suasana_filter)
+]
 
 # Menampilkan hasil rekomendasi
 st.subheader("Restoran yang Disarankan:")
