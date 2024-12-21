@@ -1,4 +1,3 @@
-import sklearn
 import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -39,14 +38,26 @@ try:
                          'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
         similarity_matrix = cosine_similarity(features)
 
-        # Filter berdasarkan rating dan harga
-        st.subheader("Filter Restoran")
-        rating_filter = st.slider('Pilih Rating Minimum', min_value=0.0, max_value=5.0, value=4.5, step=0.1)
-        price_filter = st.slider('Pilih Harga Maksimal (Rp)', min_value=0, max_value=1000000, value=100000, step=1000)
+        # Harga dan Rating dari data sebelumnya
+        available_prices = [10000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000,
+                            21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000,
+                            31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, 40000,
+                            41000, 42000, 43000, 44000, 45000, 47000, 48000, 49000, 50000, 51000,
+                            52000, 55000, 56000, 57000, 58000, 59000, 60000, 62000, 64000, 66000,
+                            67000, 68000, 69000, 70000, 73000, 75000, 76000, 77000, 80000, 82000,
+                            85000, 87000, 88000, 92000, 100000, 103000, 107000, 108000, 111000,
+                            119000, 120000, 132000, 330000]
+        available_ratings = [3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3,
+                             4.4, 4.5, 4.6, 4.7, 4.8, 4.9]
 
-        # Filter data
-        filtered_data = data[(data['Rating Toko'] >= rating_filter) &
-                             (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
+        # Dropdown untuk memilih harga dan rating
+        st.subheader("Pilih Kriteria Restoran:")
+        selected_price = st.selectbox("Pilih Harga Maksimal (Rp)", options=available_prices)
+        selected_rating = st.selectbox("Pilih Rating Minimum", options=available_ratings)
+
+        # Filter data berdasarkan pilihan pengguna
+        filtered_data = data[(data['Harga Rata-Rata Makanan di Toko (Rp)'] <= selected_price) &
+                             (data['Rating Toko'] >= selected_rating)]
 
         # Menampilkan hasil filter
         st.subheader("Restoran yang Direkomendasikan:")
@@ -56,8 +67,10 @@ try:
             st.write(filtered_data[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']])
 
             # Pilih restoran untuk melihat restoran terdekat
-            restoran_terpilih = st.selectbox("Pilih Restoran untuk Melihat Rekomendasi Terdekat",
-                                             filtered_data['Nama Restoran'])
+            restoran_terpilih = st.selectbox(
+                "Pilih Restoran untuk Melihat Rekomendasi Terdekat",
+                filtered_data['Nama Restoran']
+            )
 
             # Mendapatkan indeks restoran yang dipilih
             index_restoran = filtered_data[filtered_data['Nama Restoran'] == restoran_terpilih].index[0]
