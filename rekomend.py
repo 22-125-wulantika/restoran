@@ -1,26 +1,20 @@
 import sklearn
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Load dataset
 data = pd.read_excel('ds.xlsx')  # Ganti dengan path file dataset
 
-# 1. Label Encoding untuk Preferensi Makanan dan Jenis Suasana
-label_encoder = LabelEncoder()
-data['Preferensi Makanan'] = label_encoder.fit_transform(data['Preferensi Makanan'])
-data['Jenis Suasana'] = label_encoder.fit_transform(data['Jenis Suasana'])
-
+# Menampilkan dataset setelah menghapus encoding
 data = data[['Nama Restoran', 'Preferensi Makanan', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
 
 # Menghitung cosine similarity berdasarkan fitur-fitur yang ada
-features = data[['Preferensi Makanan', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
+features = data[['Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']]  # Menggunakan fitur numerik saja
 similarity_matrix = cosine_similarity(features)
 
-# Menampilkan dataset setelah encoding
-st.subheader("Dataset dengan Encoding")
-st.subheader("1 UNTUK CINA")
+# Menampilkan dataset tanpa encoding
+st.subheader("Dataset Tanpa Encoding")
 st.write(data)
 
 # Pilihan filter untuk Preferensi Makanan, Lokasi Restoran, Jenis Suasana, Harga, dan Rating
@@ -40,7 +34,7 @@ if any([preferensi_filter, jenis_suasana_filter, harga_filter, rating_filter]):
         columns_to_display.append('Preferensi Makanan')
     
     if jenis_suasana_filter:
-        suasana_value = st.selectbox("Pilih Jenis Suasana", options=[0, 1])
+        suasana_value = st.selectbox("Pilih Jenis Suasana", options=data['Jenis Suasana'].unique())
         data_filtered = data_filtered[data_filtered['Jenis Suasana'] == suasana_value]
         columns_to_display.append('Jenis Suasana')
     
@@ -61,4 +55,4 @@ if any([preferensi_filter, jenis_suasana_filter, harga_filter, rating_filter]):
     else:
         st.write("Tidak ada data yang memenuhi kriteria filter.")
 else:
-    st.write("Silakan pilih setidaknya satu filter untuk melihat hasil.")
+    st.write("Silakan pilih setidaknya satu filter untuk melihat hasil.")
