@@ -17,11 +17,6 @@ similarity_matrix = cosine_similarity(features)
 st.subheader("Dataset Tanpa Encoding")
 st.write(data)
 
-# Menampilkan similarity matrix
-st.subheader("Matrix Similarity")
-similarity_df = pd.DataFrame(similarity_matrix, columns=data['Nama Restoran'], index=data['Nama Restoran'])
-st.write(similarity_df)
-
 # Pilihan filter untuk Preferensi Makanan, Lokasi Restoran, Jenis Suasana, Harga, dan Rating
 preferensi_filter = st.checkbox("Filter Preferensi Makanan")
 jenis_suasana_filter = st.checkbox("Filter Jenis Suasana")
