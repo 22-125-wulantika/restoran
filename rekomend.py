@@ -30,44 +30,35 @@ try:
         data['Lokasi Restoran'] = data['Lokasi Restoran'].str.replace(' km', '').astype(float)
 
         # 3. Memastikan hanya kolom yang diperlukan
-        data = data[['Nama Restoran', 'Preferensi Makanan', 'Lokasi Restoran',
-                     'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
+        features = data[['Preferensi Makanan', 'Lokasi Restoran',
+                         'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
 
-        # Filter berdasarkan rating dan harga
-        st.subheader("Filter Restoran")
-        rating_filter = st.slider('Pilih Rating Minimum', min_value=0.0, max_value=5.0, value=4.5, step=0.1)
-        price_filter = st.slider('Pilih Harga Maksimal (Rp)', min_value=0, max_value=1000000, value=100000, step=1000)
+        # Menghitung cosine similarity berdasarkan fitur-fitur
+        similarity_matrix = cosine_similarity(features)
 
-        # Filter data
-        filtered_data = data[(data['Rating Toko'] >= rating_filter) &
-                             (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
+        # Input manual untuk fitur
+        st.subheader("Masukkan Kriteria Restoran yang Diinginkan:")
+        preferensi_makanan = st.number_input("Preferensi Makanan (0-1 untuk encoding)", min_value=0, max_value=1)
+        lokasi_restoran = st.number_input("Lokasi Restoran (dalam km)", min_value=0.0, step=0.1)
+        harga_rata_rata = st.number_input("Harga Rata-Rata Makanan (Rp)", min_value=0, step=1000)
+        rating_toko = st.slider("Rating Toko", min_value=0.0, max_value=5.0, step=0.1)
+        jenis_suasana = st.number_input("Jenis Suasana (0-1 untuk encoding)", min_value=0, max_value=1)
 
-        # Menampilkan hasil filter
-        st.subheader("Restoran yang Direkomendasikan:")
-        if filtered_data.empty:
-            st.write("Tidak ada restoran yang memenuhi kriteria. Silakan ubah filter Anda.")
-        else:
-            st.write(filtered_data[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']])
+        # Membuat fitur input user
+        input_user = [[preferensi_makanan, lokasi_restoran, harga_rata_rata, rating_toko, jenis_suasana]]
 
-            # Menghitung cosine similarity hanya untuk data yang difilter
-            filtered_features = filtered_data[['Preferensi Makanan', 'Lokasi Restoran',
-                                               'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
-            similarity_matrix = cosine_similarity(filtered_features)
+        # Menghitung similarity dengan input user
+        user_similarity = cosine_similarity(input_user, features)[0]
 
-            # Pilih restoran dari data yang difilter
-            restoran_terpilih = st.selectbox("Pilih Restoran untuk Melihat Rekomendasi Terdekat",
-                                             filtered_data['Nama Restoran'])
+        # Mengurutkan restoran berdasarkan similarity
+        sorted_indices = user_similarity.argsort()[::-1]
 
-            # Mendapatkan indeks restoran yang dipilih dalam filtered data
-            index_restoran = filtered_data[filtered_data['Nama Restoran'] == restoran_terpilih].index[0]
+        # Menampilkan restoran yang sesuai
+        st.subheader("Rekomendasi Restoran Berdasarkan Input Anda:")
+        recommended_restaurants = data.iloc[sorted_indices].head(5)
+        for idx, row in recommended_restaurants.iterrows():
+            st.write(f"- {row['Nama Restoran']} (Rating: {row['Rating Toko']}, Harga: Rp{row['Harga Rata-Rata Makanan di Toko (Rp)']})")
 
-            # Menampilkan restoran mirip dari data yang difilter
-            similar_restaurants = sorted(enumerate(similarity_matrix[index_restoran]), key=lambda x: x[1], reverse=True)[1:6]
-            st.subheader("Restoran Mirip dengan yang Anda Pilih:")
-            for i in similar_restaurants:
-                restaurant_index = i[0]  # Indeks dalam filtered data
-                restaurant_name = filtered_data.iloc[restaurant_index]['Nama Restoran']
-                st.write(f"- {restaurant_name}")
 except FileNotFoundError:
     st.error("File 'ds.xlsx' tidak ditemukan. Pastikan file ada di direktori yang sama dengan aplikasi.")
 except Exception as e:
