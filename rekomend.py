@@ -33,16 +33,30 @@ try:
         features = data[['Preferensi Makanan', 'Lokasi Restoran',
                          'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
 
-        # Menghitung cosine similarity berdasarkan fitur-fitur
-        similarity_matrix = cosine_similarity(features)
-
-        # Input manual untuk fitur
-        st.subheader("Masukkan Kriteria Restoran yang Diinginkan:")
-        preferensi_makanan = st.number_input("Preferensi Makanan (0-1 untuk encoding)", min_value=0, max_value=1)
-        lokasi_restoran = st.number_input("Lokasi Restoran (dalam km)", min_value=0.0, step=0.1)
-        harga_rata_rata = st.number_input("Harga Rata-Rata Makanan (Rp)", min_value=0, step=1000)
-        rating_toko = st.slider("Rating Toko", min_value=0.0, max_value=5.0, step=0.1)
-        jenis_suasana = st.number_input("Jenis Suasana (0-1 untuk encoding)", min_value=0, max_value=1)
+        # Dropdown untuk memilih kriteria fitur
+        st.subheader("Pilih Kriteria Restoran yang Anda Inginkan:")
+        preferensi_makanan = st.selectbox(
+            "Preferensi Makanan",
+            options=data['Preferensi Makanan'].unique(),
+            format_func=lambda x: f"Tipe {x}"
+        )
+        lokasi_restoran = st.selectbox(
+            "Lokasi Restoran (dalam km)",
+            options=sorted(data['Lokasi Restoran'].unique())
+        )
+        harga_rata_rata = st.selectbox(
+            "Harga Rata-Rata Makanan (Rp)",
+            options=sorted(data['Harga Rata-Rata Makanan di Toko (Rp)'].unique())
+        )
+        rating_toko = st.selectbox(
+            "Rating Toko",
+            options=sorted(data['Rating Toko'].unique(), reverse=True)
+        )
+        jenis_suasana = st.selectbox(
+            "Jenis Suasana",
+            options=data['Jenis Suasana'].unique(),
+            format_func=lambda x: f"Tipe {x}"
+        )
 
         # Membuat fitur input user
         input_user = [[preferensi_makanan, lokasi_restoran, harga_rata_rata, rating_toko, jenis_suasana]]
