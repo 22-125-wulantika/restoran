@@ -1,20 +1,20 @@
+import sklearn
 import streamlit as st
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Judul aplikasi
-st.title("Rekomendasi Restoran Berdasarkan Harga dan Rating")
+st.title("Sistem Rekomendasi Restoran")
 
 # Membaca file dataset
-@st.cache_data
-def load_data():
-    return pd.read_excel('ds.xlsx')
-
 try:
-    data = load_data()
+    # Membaca file Excel ds.xlsx
+    data = pd.read_excel('ds.xlsx')
 
     # Validasi kolom
-    required_columns = ['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']
+    required_columns = ['Nama Restoran', 'Preferensi Makanan', 'Lokasi Restoran',
+                        'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']
     if not all(col in data.columns for col in required_columns):
         st.error("Dataset harus memiliki kolom berikut: " + ", ".join(required_columns))
     else:
@@ -22,37 +22,58 @@ try:
         st.subheader("Pratinjau Dataset:")
         st.write(data.head())
 
-        # Preprocessing Data: memastikan kolom harga dan rating dalam format numerik
-        data['Harga Rata-Rata Makanan di Toko (Rp)'] = pd.to_numeric(data['Harga Rata-Rata Makanan di Toko (Rp)'], errors='coerce')
-        data['Rating Toko'] = pd.to_numeric(data['Rating Toko'], errors='coerce')
+        # 1. Label Encoding untuk Preferensi Makanan dan Jenis Suasana
+        label_encoder = LabelEncoder()
+        data['Preferensi Makanan'] = label_encoder.fit_transform(data['Preferensi Makanan'])
+        data['Jenis Suasana'] = label_encoder.fit_transform(data['Jenis Suasana'])
 
-        # Input fitur harga dan rating
-        st.subheader("Masukkan Kriteria Restoran (Harga dan Rating):")
-        
-        # Input harga dan rating oleh pengguna
-        harga_input = st.number_input("Harga Rata-Rata Makanan (Rp):", min_value=int(data['Harga Rata-Rata Makanan di Toko (Rp)'].min()),
-                                     max_value=int(data['Harga Rata-Rata Makanan di Toko (Rp)'].max()),
-                                     value=int(data['Harga Rata-Rata Makanan di Toko (Rp)'].mean()), step=500)
-        
-        rating_input = st.slider("Rating Toko (0-5):", min_value=0, max_value=5, value=4, step=0.1)
+        # 2. Menghapus satuan 'km' pada Lokasi Restoran
+        data['Lokasi Restoran'] = data['Lokasi Restoran'].str.replace(' km', '').astype(float)
 
-        # Membuat input vektor
-        input_vector = [[harga_input, rating_input]]
+        # 3. Memastikan hanya kolom yang diperlukan
+        data = data[['Nama Restoran', 'Preferensi Makanan', 'Lokasi Restoran',
+                     'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
 
-        # Menyaring data yang relevan berdasarkan harga dan rating
-        filtered_data = data[(data['Harga Rata-Rata Makanan di Toko (Rp)'] >= harga_input - 500) & 
-                             (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= harga_input + 500) & 
-                             (data['Rating Toko'] >= rating_input - 0.5) & 
-                             (data['Rating Toko'] <= rating_input + 0.5)]
+        # Menghitung cosine similarity berdasarkan fitur-fitur
+        features = data[['Preferensi Makanan', 'Lokasi Restoran',
+                         'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
+        similarity_matrix = cosine_similarity(features)
 
-        # Menampilkan hasil rekomendasi berdasarkan harga dan rating
+        # Filter berdasarkan rating dan harga
+        st.subheader("Filter Restoran")
+        rating_filter = st.slider('Pilih Rating Minimum', min_value=0.0, max_value=5.0, value=4.5, step=0.1)
+        price_filter = st.slider('Pilih Harga Maksimal (Rp)', min_value=0, max_value=1000000, value=100000, step=1000)
+
+        # Filter data
+        filtered_data = data[(data['Rating Toko'] >= rating_filter) &
+                             (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
+
+        # Menampilkan hasil filter
         st.subheader("Restoran yang Direkomendasikan:")
         if filtered_data.empty:
-            st.write("Tidak ada restoran yang sesuai dengan kriteria Anda.")
+            st.write("Tidak ada restoran yang memenuhi kriteria.")
         else:
-            st.write(f"Menampilkan restoran dengan harga sekitar Rp {harga_input} dan rating sekitar {rating_input}.")
             st.write(filtered_data[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']])
 
+            # Pilih restoran untuk melihat restoran terdekat
+            restoran_terpilih = st.selectbox("Pilih Restoran untuk Melihat Rekomendasi Terdekat",
+                                             filtered_data['Nama Restoran'])
+
+            # Mendapatkan indeks restoran yang dipilih
+            index_restoran = filtered_data[filtered_data['Nama Restoran'] == restoran_terpilih].index[0]
+
+            # Menghitung cosine similarity untuk restoran terpilih
+            similar_restaurants = list(enumerate(similarity_matrix[index_restoran]))
+
+            # Mengurutkan berdasarkan similarity dan memilih 5 teratas
+            similar_restaurants = sorted(similar_restaurants, key=lambda x: x[1], reverse=True)[1:6]
+
+            # Menampilkan restoran yang mirip
+            st.subheader("Restoran Mirip dengan yang Anda Pilih:")
+            for i in similar_restaurants:
+                restaurant_index = i[0]
+                restaurant_name = data.iloc[restaurant_index]['Nama Restoran']
+                st.write(f"- {restaurant_name}")
 except FileNotFoundError:
     st.error("File 'ds.xlsx' tidak ditemukan. Pastikan file ada di direktori yang sama dengan aplikasi.")
 except Exception as e:
