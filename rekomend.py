@@ -39,12 +39,12 @@ suasana_mapping = {
 
 # Pilihan filter untuk Preferensi Makanan, Lokasi Restoran, Jenis Suasana, Harga, dan Rating
 preferensi_filter = st.checkbox("Filter Preferensi Makanan")
-jenis_suasana_filter = st.checkbox("Filter Jenis Suasana")
 harga_filter = st.checkbox("Filter Harga")
 rating_filter = st.checkbox("Filter Rating")
+jenis_suasana_filter = st.checkbox("Filter Jenis Suasana")
 
 # Input untuk filter
-if any([preferensi_filter, jenis_suasana_filter, harga_filter, rating_filter]):
+if any([preferensi_filter, harga_filter, rating_filter,jenis_suasana_filter]):
     data_filtered = data.copy()
     columns_to_display = ['Nama Restoran']
     
@@ -56,14 +56,6 @@ if any([preferensi_filter, jenis_suasana_filter, harga_filter, rating_filter]):
         data_filtered = data_filtered[data_filtered['Preferensi Makanan'] == preferensi_encoded]
         columns_to_display.append('Preferensi Makanan')
     
-    if jenis_suasana_filter:
-        # Dropdown untuk Jenis Suasana
-        suasana_value = st.selectbox("Pilih Jenis Suasana", options=list(suasana_mapping.values()))
-        # Mengambil nilai encoded dari pilihan dropdown
-        suasana_encoded = list(suasana_mapping.keys())[list(suasana_mapping.values()).index(suasana_value)]
-        data_filtered = data_filtered[data_filtered['Jenis Suasana'] == suasana_encoded]
-        columns_to_display.append('Jenis Suasana')
-    
     if harga_filter:
         price_max = st.number_input("Masukkan Harga Maksimal (Rp)", min_value=0, value=50000, step=1000)
         data_filtered = data_filtered[data_filtered['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_max]
@@ -73,6 +65,14 @@ if any([preferensi_filter, jenis_suasana_filter, harga_filter, rating_filter]):
         rating_value = st.slider("Pilih Rating Restoran", min_value=0.0, max_value=5.0, value=0.0, step=0.1)
         data_filtered = data_filtered[data_filtered['Rating Toko'] == rating_value]
         columns_to_display.append('Rating Toko')
+
+    if jenis_suasana_filter:
+        # Dropdown untuk Jenis Suasana
+        suasana_value = st.selectbox("Pilih Jenis Suasana", options=list(suasana_mapping.values()))
+        # Mengambil nilai encoded dari pilihan dropdown
+        suasana_encoded = list(suasana_mapping.keys())[list(suasana_mapping.values()).index(suasana_value)]
+        data_filtered = data_filtered[data_filtered['Jenis Suasana'] == suasana_encoded]
+        columns_to_display.append('Jenis Suasana')
 
     # Menampilkan hasil filter
     st.subheader("Hasil Filter:")
