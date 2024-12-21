@@ -20,6 +20,7 @@ similarity_matrix = cosine_similarity(features)
 
 # Menampilkan dataset setelah encoding
 st.subheader("Dataset dengan Encoding")
+st.subheader("1 UNTUK CINA")
 st.write(data)
 
 # Pilihan filter untuk Preferensi Makanan, Lokasi Restoran, Jenis Suasana, Harga, dan Rating
