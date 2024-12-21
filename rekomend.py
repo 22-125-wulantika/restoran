@@ -33,11 +33,6 @@ try:
         data = data[['Nama Restoran', 'Preferensi Makanan', 'Lokasi Restoran',
                      'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
 
-        # Menghitung cosine similarity berdasarkan fitur-fitur
-        features = data[['Preferensi Makanan', 'Lokasi Restoran',
-                         'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
-        similarity_matrix = cosine_similarity(features)
-
         # Harga dan Rating dari data sebelumnya
         available_prices = [10000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000,
                             21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000,
@@ -65,28 +60,6 @@ try:
             st.write("Tidak ada restoran yang memenuhi kriteria.")
         else:
             st.write(filtered_data[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']])
-
-            # Pilih restoran untuk melihat restoran terdekat
-            restoran_terpilih = st.selectbox(
-                "Pilih Restoran untuk Melihat Rekomendasi Terdekat",
-                filtered_data['Nama Restoran']
-            )
-
-            # Mendapatkan indeks restoran yang dipilih
-            index_restoran = filtered_data[filtered_data['Nama Restoran'] == restoran_terpilih].index[0]
-
-            # Menghitung cosine similarity untuk restoran terpilih
-            similar_restaurants = list(enumerate(similarity_matrix[index_restoran]))
-
-            # Mengurutkan berdasarkan similarity dan memilih 5 teratas
-            similar_restaurants = sorted(similar_restaurants, key=lambda x: x[1], reverse=True)[1:6]
-
-            # Menampilkan restoran yang mirip
-            st.subheader("Restoran Mirip dengan yang Anda Pilih:")
-            for i in similar_restaurants:
-                restaurant_index = i[0]
-                restaurant_name = data.iloc[restaurant_index]['Nama Restoran']
-                st.write(f"- {restaurant_name}")
 except FileNotFoundError:
     st.error("File 'ds.xlsx' tidak ditemukan. Pastikan file ada di direktori yang sama dengan aplikasi.")
 except Exception as e:
