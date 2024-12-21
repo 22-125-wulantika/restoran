@@ -48,7 +48,8 @@ filtered_data = data[
 # Menampilkan hasil rekomendasi
 st.subheader("Restoran yang Disarankan:")
 if not filtered_data.empty:
-    st.write(filtered_data[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']])
+    # Menampilkan restoran yang disarankan dengan Preferensi Makanan dan Jenis Suasana
+    st.write(filtered_data[['Nama Restoran', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Preferensi Makanan', 'Jenis Suasana']])
 
     # Pilih restoran untuk melihat restoran terdekat
     restoran_terpilih = st.selectbox("Pilih Restoran untuk Melihat Rekomendasi Terdekat", filtered_data['Nama Restoran'])
@@ -73,7 +74,7 @@ if not filtered_data.empty:
     st.subheader("Restoran Mirip dengan yang Anda Pilih:")
     if similar_filtered_data:
         for row in similar_filtered_data:
-            st.write(f"- {row['Nama Restoran']} (Rating: {row['Rating Toko']}, Harga: Rp{row['Harga Rata-Rata Makanan di Toko (Rp)']})")
+            st.write(f"- {row['Nama Restoran']} (Rating: {row['Rating Toko']}, Harga: Rp{row['Harga Rata-Rata Makanan di Toko (Rp)']}, Preferensi Makanan: {row['Preferensi Makanan']}, Jenis Suasana: {row['Jenis Suasana']})")
     else:
         st.write("Tidak ada restoran lain yang memenuhi kriteria berdasarkan rating yang dipilih.")
 else:
