@@ -34,16 +34,34 @@ rating_filter = st.slider('Pilih Rating Restoran', min_value=3.4, max_value=5.0,
 price_filter = st.number_input('Masukkan Harga Maksimal (Rp)', min_value=0, value=50000, step=1000)
 
 # Pilihan Preferensi Makanan dan Jenis Suasana
-preferensi_makanan_filter = st.selectbox('Pilih Preferensi Makanan', data['Preferensi Makanan'].unique())
-jenis_suasana_filter = st.selectbox('Pilih Jenis Suasana', data['Jenis Suasana'].unique())
+preferensi_makanan_filter = st.selectbox('Pilih Preferensi Makanan', ['Semua'] + list(data['Preferensi Makanan'].unique()))
+jenis_suasana_filter = st.selectbox('Pilih Jenis Suasana', ['Semua'] + list(data['Jenis Suasana'].unique()))
 
 # Menampilkan restoran yang sesuai dengan rating, harga, preferensi makanan, dan jenis suasana
-filtered_data = data[
-    (data['Rating Toko'] == rating_filter) &
-    (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter) &
-    (data['Preferensi Makanan'] == preferensi_makanan_filter) &
-    (data['Jenis Suasana'] == jenis_suasana_filter)
-]
+if preferensi_makanan_filter != 'Semua' and jenis_suasana_filter != 'Semua':
+    filtered_data = data[
+        (data['Rating Toko'] == rating_filter) &
+        (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter) &
+        (data['Preferensi Makanan'] == preferensi_makanan_filter) &
+        (data['Jenis Suasana'] == jenis_suasana_filter)
+    ]
+elif preferensi_makanan_filter != 'Semua':
+    filtered_data = data[
+        (data['Rating Toko'] == rating_filter) &
+        (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter) &
+        (data['Preferensi Makanan'] == preferensi_makanan_filter)
+    ]
+elif jenis_suasana_filter != 'Semua':
+    filtered_data = data[
+        (data['Rating Toko'] == rating_filter) &
+        (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter) &
+        (data['Jenis Suasana'] == jenis_suasana_filter)
+    ]
+else:
+    filtered_data = data[
+        (data['Rating Toko'] == rating_filter) &
+        (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)
+    ]
 
 # Menampilkan hasil rekomendasi
 st.subheader("Restoran yang Disarankan:")
