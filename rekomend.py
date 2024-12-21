@@ -30,11 +30,11 @@ st.subheader("Dataset dengan Encoding")
 st.write(data)
 
 # Pilih rating dan harga
-rating_filter = st.slider('Pilih Rating Restoran', min_value=3.4, max_value=5.0, value=4.9, step=0.1)
+rating_filter = st.slider('Pilih Rating Restoran', min_value=3.4, max_value=4.9, value=4.9, step=0.1)
 price_filter = st.slider('Pilih Harga Maksimal (Rp)', min_value=0, max_value=330000, value=50000, step=1000)
 
 # Menampilkan restoran yang sesuai dengan rating dan harga
-filtered_data = data[(data['Rating Toko'] >= rating_filter) & (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
+filtered_data = data[(data['Rating Toko']) & (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
 
 # Menampilkan hasil rekomendasi
 st.subheader("Restoran yang Disarankan:")
