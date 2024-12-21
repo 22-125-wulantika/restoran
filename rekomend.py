@@ -25,6 +25,10 @@ similarity_matrix = cosine_similarity(features)
 # Streamlit UI
 st.title("Rekomendasi Restoran")
 
+# Tampilkan dataset dengan encoding
+st.subheader("Dataset dengan Encoding")
+st.write(data)
+
 # Pilih rating dan harga
 rating_filter = st.slider('Pilih Rating Restoran', min_value=0.0, max_value=5.0, value=4.9, step=0.1)
 price_filter = st.slider('Pilih Harga Maksimal (Rp)', min_value=0, max_value=1000000, value=50000, step=1000)
