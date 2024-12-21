@@ -1,11 +1,3 @@
-import streamlit as st
-import pandas as pd
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics.pairwise import cosine_similarity
-
-# Judul aplikasi
-st.title("Sistem Rekomendasi Restoran")
-
 # Membaca file dataset
 try:
     # Membaca file Excel ds.xlsx
@@ -18,8 +10,9 @@ try:
         st.error("Dataset harus memiliki kolom berikut: " + ", ".join(required_columns))
     else:
         # Pratinjau data
-        st.subheader("Pratinjau Dataset:")
-        st.write(data.head())
+        st.subheader("Pratinjau Dataset (5 Baris):")
+        st.write(data[['Nama Restoran', 'Preferensi Makanan', 'Lokasi Restoran',
+                       'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']].head(5))
 
         # 1. Label Encoding untuk Preferensi Makanan dan Jenis Suasana
         label_encoder = LabelEncoder()
