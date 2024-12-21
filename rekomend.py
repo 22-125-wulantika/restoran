@@ -29,12 +29,24 @@ st.title("Rekomendasi Restoran")
 st.subheader("Dataset dengan Encoding")
 st.write(data)
 
-# Pilih rating dan harga dari input
-rating_filter = st.slider('Pilih Rating Restoran', min_value=3.4, max_value=0.0, value=5.0, step=0.1)
+# Filter untuk Rating dan Harga
+rating_filter = st.slider('Pilih Rating Restoran', min_value=3.4, max_value=5.0, value=5.0, step=0.1)
 price_filter = st.number_input('Masukkan Harga Maksimal (Rp)', min_value=0, value=50000, step=1000)
 
-# Menampilkan restoran yang sesuai dengan rating dan harga
-filtered_data = data[(data['Rating Toko'] == rating_filter) & (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter)]
+# Filter untuk Preferensi Makanan, Lokasi, dan Jenis Suasana
+preferensi_filter = st.selectbox('Pilih Preferensi Makanan', data['Preferensi Makanan'].unique())
+lokasi_filter = st.slider('Pilih Lokasi Restoran (km)', min_value=float(data['Lokasi Restoran'].min()), 
+                          max_value=float(data['Lokasi Restoran'].max()), value=float(data['Lokasi Restoran'].min()), step=1.0)
+suasana_filter = st.selectbox('Pilih Jenis Suasana', data['Jenis Suasana'].unique())
+
+# Menampilkan restoran yang sesuai dengan filter yang dipilih
+filtered_data = data[
+    (data['Rating Toko'] == rating_filter) &
+    (data['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter) &
+    (data['Preferensi Makanan'] == preferensi_filter) &
+    (data['Lokasi Restoran'] <= lokasi_filter) &
+    (data['Jenis Suasana'] == suasana_filter)
+]
 
 # Menampilkan hasil rekomendasi
 st.subheader("Restoran yang Disarankan:")
@@ -57,7 +69,13 @@ if not filtered_data.empty:
     similar_filtered_data = [
         data.iloc[i[0]]
         for i in similar_restaurants
-        if data.iloc[i[0]]['Rating Toko'] == rating_filter
+        if (
+            data.iloc[i[0]]['Rating Toko'] == rating_filter and
+            data.iloc[i[0]]['Harga Rata-Rata Makanan di Toko (Rp)'] <= price_filter and
+            data.iloc[i[0]]['Preferensi Makanan'] == preferensi_filter and
+            data.iloc[i[0]]['Lokasi Restoran'] <= lokasi_filter and
+            data.iloc[i[0]]['Jenis Suasana'] == suasana_filter
+        )
     ]
 
     # Menampilkan restoran yang mirip
@@ -66,6 +84,6 @@ if not filtered_data.empty:
         for row in similar_filtered_data:
             st.write(f"- {row['Nama Restoran']} (Rating: {row['Rating Toko']}, Harga: Rp{row['Harga Rata-Rata Makanan di Toko (Rp)']})")
     else:
-        st.write("Tidak ada restoran lain yang memenuhi kriteria berdasarkan rating yang dipilih.")
+        st.write("Tidak ada restoran lain yang memenuhi kriteria berdasarkan filter yang dipilih.")
 else:
-    st.write("Tidak ada restoran yang memenuhi kriteria filter Anda.")
+    st.write("Tidak ada restoran yang memenuhi kriteria filter Anda.")
