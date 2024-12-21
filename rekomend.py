@@ -1,21 +1,41 @@
 import sklearn
 import streamlit as st
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Load dataset
 data = pd.read_excel('ds.xlsx')  # Ganti dengan path file dataset
 
-# Menampilkan dataset setelah menghapus encoding
+# 1. Label Encoding untuk Preferensi Makanan dan Jenis Suasana
+label_encoder = LabelEncoder()
+data['Preferensi Makanan'] = label_encoder.fit_transform(data['Preferensi Makanan'])
+data['Jenis Suasana'] = label_encoder.fit_transform(data['Jenis Suasana'])
+
 data = data[['Nama Restoran', 'Preferensi Makanan', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
 
 # Menghitung cosine similarity berdasarkan fitur-fitur yang ada
-features = data[['Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko']]  # Menggunakan fitur numerik saja
+features = data[['Preferensi Makanan', 'Harga Rata-Rata Makanan di Toko (Rp)', 'Rating Toko', 'Jenis Suasana']]
 similarity_matrix = cosine_similarity(features)
 
-# Menampilkan dataset tanpa encoding
-st.subheader("Dataset Tanpa Encoding")
+# Menampilkan dataset setelah encoding
+st.subheader("Dataset dengan Encoding")
 st.write(data)
+
+# Mapping untuk Preferensi Makanan
+preferensi_mapping = {
+    0: '0 : Chinese',
+    1: '1 : Indonesia',
+    2: '2 : Japanese',
+    3: '3 : Middle Eastern',
+    4: '4 : Western'
+}
+
+# Mapping untuk Jenis Suasana
+suasana_mapping = {
+    0: '0 : Santai',
+    1: '1 : Formal'
+}
 
 # Pilihan filter untuk Preferensi Makanan, Lokasi Restoran, Jenis Suasana, Harga, dan Rating
 preferensi_filter = st.checkbox("Filter Preferensi Makanan")
@@ -29,13 +49,19 @@ if any([preferensi_filter, jenis_suasana_filter, harga_filter, rating_filter]):
     columns_to_display = ['Nama Restoran']
     
     if preferensi_filter:
-        preferensi_value = st.selectbox("Pilih Preferensi Makanan", options=data['Preferensi Makanan'].unique())
-        data_filtered = data_filtered[data_filtered['Preferensi Makanan'] == preferensi_value]
+        # Dropdown untuk Preferensi Makanan
+        preferensi_value = st.selectbox("Pilih Preferensi Makanan", options=list(preferensi_mapping.values()))
+        # Mengambil nilai encoded dari pilihan dropdown
+        preferensi_encoded = list(preferensi_mapping.keys())[list(preferensi_mapping.values()).index(preferensi_value)]
+        data_filtered = data_filtered[data_filtered['Preferensi Makanan'] == preferensi_encoded]
         columns_to_display.append('Preferensi Makanan')
     
     if jenis_suasana_filter:
-        suasana_value = st.selectbox("Pilih Jenis Suasana", options=data['Jenis Suasana'].unique())
-        data_filtered = data_filtered[data_filtered['Jenis Suasana'] == suasana_value]
+        # Dropdown untuk Jenis Suasana
+        suasana_value = st.selectbox("Pilih Jenis Suasana", options=list(suasana_mapping.values()))
+        # Mengambil nilai encoded dari pilihan dropdown
+        suasana_encoded = list(suasana_mapping.keys())[list(suasana_mapping.values()).index(suasana_value)]
+        data_filtered = data_filtered[data_filtered['Jenis Suasana'] == suasana_encoded]
         columns_to_display.append('Jenis Suasana')
     
     if harga_filter:
@@ -55,4 +81,4 @@ if any([preferensi_filter, jenis_suasana_filter, harga_filter, rating_filter]):
     else:
         st.write("Tidak ada data yang memenuhi kriteria filter.")
 else:
-    st.write("Silakan pilih setidaknya satu filter untuk melihat hasil.")
+    st.write("Silakan pilih setidaknya satu filter untuk melihat hasil.")
